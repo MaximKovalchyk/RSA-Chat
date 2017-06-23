@@ -54,39 +54,49 @@
             }
           }
 
-          document.body.innerHTML = '<div><select id="user_pk">'+options+'</select></div><button id="SelectUser">Select user<button>'
+          document.body.innerHTML = '<div><select id="user_pk">'+options+'</select></div><button id="SelectUser">Select user</button><button id="RefreshUsers">Refresh</button>'
+
           $('#SelectUser').on('click', function() {
             client.selectUser = {
               name: $( "#user_pk option:selected" ).text(),
               publicKey: $( "#user_pk" ).val()
             };
+            printMessagePage();
           });
-
-          printMessagePage();
+          $('#RefreshUsers').on('click', function() {
+            socket.emit('get_users_list');
+          });
         }
 
         function printMessagePage() {
           var html = '<ul id="messages"></ul>\
-          <form action="">\
-            <input id="m" autocomplete="off" /><button>Send</button>\
-          </form>';
+            <input id="m" autocomplete="off" /><button id="send_btn">Send</button>';
 
-          
+          document.body.innerHTML = html;
+
+          $('#send_btn').on('click', function(){
+            var args = {};
+            var text = $('#m').val();
+            args.msg = text;
+            args.name = client.selectUser.name;
+            socket.emit('chat message', args);
+            addMsg(text);
+            $('#m').val('');
+            return false;
+          });
         }
 
         printLoginPage();
 
-        socket.on('get_users', printSelectUserPage);
-
-
-        $('form').submit(function(){
-          socket.emit('chat message', $('#m').val());
-          $('#m').val('');
-          return false;
-        });
-        socket.on('chat message', function(msg){
+        function addMsg(msg) {
           $('#messages').append($('<li>').text(msg));
           window.scrollTo(0, document.body.scrollHeight);
+        }
+
+        socket.on('get_users', printSelectUserPage);
+
+        socket.on('chat message', function(msg){
+          addMsg(msg);
         });
       });
     </script>

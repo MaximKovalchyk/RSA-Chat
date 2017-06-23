@@ -11,8 +11,8 @@ app.get('/', function(req, res) {
 });
 
 io.on('connection', function(socket) {
-  socket.on('chat message', function(msg) {
-    io.emit('chat message', msg);
+  socket.on('chat message', function(args) {
+    userListSockets[args.name].emit('chat message', args.msg);
   });
 
   socket.on('add_user', function(new_user) {
