@@ -77,7 +77,11 @@
           $('#send_btn').on('click', function(){
             var args = {};
             var text = $('#m').val();
-            args.msg = text;
+            //encript
+            var crypt = new JSEncrypt();
+            crypt.setPublicKey(client.selectUser.publicKey);
+
+            args.msg = crypt.encrypt(text);
             args.name = client.selectUser.name;
             socket.emit('chat message', args);
             addMsg(text);
@@ -96,6 +100,8 @@
         socket.on('get_users', printSelectUserPage);
 
         socket.on('chat message', function(msg){
+          //decript
+          msg = client.crypt.decrypt(msg);
           addMsg(msg);
         });
       });
