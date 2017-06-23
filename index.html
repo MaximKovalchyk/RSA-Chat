@@ -101,8 +101,12 @@
 
         socket.on('chat message', function(msg){
           //decript
-          msg = client.crypt.decrypt(msg);
-          addMsg(msg);
+          var res = client.crypt.decrypt(msg);
+          console.log({
+            input: msg,
+            result: res
+          });
+          addMsg(res);
         });
       });
     </script>
