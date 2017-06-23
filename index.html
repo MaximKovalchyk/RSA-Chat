@@ -24,6 +24,7 @@
     <script src="jquery-1.11.1.js"></script>
     <script>
       $(function () {
+        var socket = io();
         window.client = {};
 
         function generateKeys() {
@@ -37,10 +38,14 @@
         function printLoginPage() {
           client.name = prompt('Name?');
           generateKeys();
+          socket.emit('add_user', {
+            name: client.name,
+            publicKey: client.publicKey
+          });
         }
         printLoginPage();
 
-        var socket = io();
+
         $('form').submit(function(){
           socket.emit('chat message', $('#m').val());
           $('#m').val('');
