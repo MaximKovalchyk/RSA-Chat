@@ -42,8 +42,41 @@
             name: client.name,
             publicKey: client.publicKey
           });
+          socket.emit('get_users_list');
         }
+
+        function printSelectUserPage(userList) {
+          console.log(userList)
+          var options = '';
+          for (var user in userList) {
+            if (user != client.name) {
+              options += '<option value="'+ userList[user] +'">'+user+'</option>';
+            }
+          }
+
+          document.body.innerHTML = '<div><select id="user_pk">'+options+'</select></div><button id="SelectUser">Select user<button>'
+          $('#SelectUser').on('click', function() {
+            client.selectUser = {
+              name: $( "#user_pk option:selected" ).text(),
+              publicKey: $( "#user_pk" ).val()
+            };
+          });
+
+          printMessagePage();
+        }
+
+        function printMessagePage() {
+          var html = '<ul id="messages"></ul>\
+          <form action="">\
+            <input id="m" autocomplete="off" /><button>Send</button>\
+          </form>';
+
+          
+        }
+
         printLoginPage();
+
+        socket.on('get_users', printSelectUserPage);
 
 
         $('form').submit(function(){
