@@ -13,6 +13,9 @@
       #messages li:nth-child(odd) { background: #eee; }
       #messages { margin-bottom: 40px }
     </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
   <body>
     <ul id="messages"></ul>
@@ -50,16 +53,16 @@
           var options = '';
           for (var user in userList) {
             if (user != client.name) {
-              options += '<option value="'+ userList[user] +'">'+user+'</option>';
+              options += '<li data-value="'+ userList[user] +'">'+user+'</li>';
             }
           }
 
-          document.body.innerHTML = '<div><select id="user_pk">'+options+'</select></div><button id="SelectUser">Select user</button><button id="RefreshUsers">Refresh</button>'
+          document.body.innerHTML = '<div class="container"><h2>Select user:</h2> <div class="dropdown"><button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Select</button><ul id="user_pk" class="dropdown-menu">'+options+'</ul></div></div>'
 
-          $('#SelectUser').on('click', function() {
+          $('#user_pk li').on('click', function() {
             client.selectUser = {
-              name: $( "#user_pk option:selected" ).text(),
-              publicKey: $( "#user_pk" ).val()
+              name: $(this).text(),
+              publicKey: $(this).data('value')
             };
             printMessagePage();
           });
@@ -68,9 +71,14 @@
           });
         }
 
+        function addMsgToTable(user, msg) {
+          $('#msg_table').append('<tr><td>'+user+'</td><td>'+msg+'</td></tr>')
+        }
+
         function printMessagePage() {
-          var html = '<ul id="messages"></ul>\
-            <input id="m" autocomplete="off" /><button id="send_btn">Send</button>';
+          // var html = '<ul id="messages"></ul>\
+          //   <input id="m" autocomplete="off" /><button id="send_btn">Send</button>';
+          var html = '<table id="msg_table" class="table table-striped"><tr><th>User</th><th>Message</th></tr></table> <div class="input-group"><input id="m" type="text" class="form-control" autocomplete="off" placeholder="Enter nessage..."><span class="input-group-btn"><button class="btn btn-secondary" id="send_btn" type="button">Send</button></span></div>'
 
           document.body.innerHTML = html;
 
@@ -84,7 +92,7 @@
             args.msg = crypt.encrypt(text);
             args.name = client.selectUser.name;
             socket.emit('chat message', args);
-            addMsg(text);
+            addMsgToTable(client.name, text);
             $('#m').val('');
             return false;
           });
@@ -106,7 +114,7 @@
             input: msg,
             result: res
           });
-          addMsg(res);
+          addMsgToTable(client.selectUser.name, res);
         });
       });
     </script>
